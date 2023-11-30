@@ -1,10 +1,31 @@
-# Edificio 1
-
+# Edificio 1 
+[regresar](./HappyDuck-network.MD)
 ## configuracion del switch
 
 ```tcl
 enable
 conf term
+hostname OFICINA1
+vlan 10
+name datos
+exit
+vlan 20
+name voz
+interface range fast 0/1-20
+switchport mode access
+switchport access vlan 10
+switchport voice vlan 20
+exit
+interfa fast 0/24
+switchport mode trunk
+no shutdown
+exit
+```
+
+```tcl
+enable
+conf term
+hostname OFICINA2
 vlan 10
 name datos
 exit
@@ -134,29 +155,72 @@ exit
 
 ```tcl
 route eigrp 10
+network 192.168.10.0 0.0.0.255
+network 192.168.15.0 0.0.0.255
+network 128.168.10.0 0.0.0.255
+network 128.168.15.0 0.0.0.255 
 network 192.0.0.12 0.0.0.3
-network 192.0.0.16 0.0.0.3 
+network 192.178.0.0 0.0.0.3
+network 192.0.0.16 0.0.0.3
+network 192.0.0.0 0.0.0.3
 auto-summary
+
 exit
 
-route ospf 10 
+route ospf 10
+router ospf 10
+network 192.178.0.0 0.0.0.3 area 0
+network 192.0.0.16 0.0.0.3 area 0
 network 192.0.0.0 0.0.0.3 area 0
+
+route ospf 10
 network 192.168.10.0 0.0.0.255 area 0
 network 192.168.15.0 0.0.0.255 area 0
 network 128.168.10.0 0.0.0.255 area 0
 network 128.168.15.0 0.0.0.255 area 0
+network 192.0.0.12 0.0.0.3 area 0
+network 192.0.0.16 0.0.0.3 area 0
+network 192.0.0.0 0.0.0.3 area 0
+exit
+```
+
+#### Redistribucion
+
+```tcl
+router eigrp 10
+redistribute rip metric 1658031 514560 255 255 1500
+exit 
+
+```
+
+### Access list
+
+> no hay conexion entre las oficinas:
+ (1 -> 3),
+ (2 -> 6)
+
+```tcl
+access-list 1 deny 192.168.20.0 0.0.0.255
+access-list 1 deny 192.168.25.0 0.0.0.255
+access-list 1 permit any
+interface fastEthernet 0/0.10
+ip access-group 1 out
+exit
+interface fastEthernet 0/0.20
+ip access-group 1 out
 exit
 ```
 
 ```tcl
-route ospf 10
-redistribute eigrp 10 metric 15 subnets
-redistribute rip
+access-list 2 deny 128.168.30.0 0.0.0.255
+access-list 2 deny 128.168.35.0 0.0.0.255
+access-list 2 permit any
+interface fastEthernet 0/1.10
+ip access-group 2 out
 exit
-
-route eigrp 10
-redistribute ospf 10 metric 1658031 514560 255 255 1500
-
+interface fastEthernet 0/1.20
+ip access-group 2 out
+exit
 ```
 
 ### Dial peer
@@ -167,11 +231,26 @@ destination-pattern 300.
 session target ipv4:192.0.0.2
 exit
 dial-peer voice 2 voip
-destination-pattern 300.
-session target ipv4:192.0.0.6
-exit
-dial-peer voice 3 voip
 destination-pattern 400.
+session target ipv4:192.0.0.2
+exit
+
+dial-peer voice 3 voip
+destination-pattern 500.
+session target ipv4:192.0.0.18
+exit
+dial-peer voice 4 voip
+destination-pattern 600.
+session target ipv4:192.0.0.18
+exit
+
+dial-peer voice 5 voip
+destination-pattern 700.
+session target ipv4:192.0.0.13
+exit
+dial-peer voice 6 voip
+destination-pattern 800.
 session target ipv4:192.0.0.13
 exit
 ```
+[regresar](./HappyDuck-network.MD)

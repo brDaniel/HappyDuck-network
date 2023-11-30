@@ -1,5 +1,5 @@
 # Edificio 2
-
+[regresar](./HappyDuck-network.MD)
 ## configuracion del switch
 
 ```tcl
@@ -41,6 +41,11 @@ exit
 interface se 0/0/0
 ip address 192.0.0.2 255.255.255.252
 description Enlace a Edificio 1 (Help-desk:1-800-555-1234)
+no shutdown
+exit
+interface se 0/1/1
+ip address 192.0.10.1 255.255.255.252
+description Enlace a  Corporativo (Help-desk:1-800-555-1234)
 no shutdown
 exit
 interface faste 0/0
@@ -129,6 +134,7 @@ exit
 
 ```tcl
 route ospf 10
+network 192.0.10.0 0.0.0.3 area 0
 network 192.0.0.0 0.0.0.3 area 0
 network 192.168.20.0 0.0.0.255 area 0
 network 192.168.25.0 0.0.0.255 area 0
@@ -136,18 +142,19 @@ network 128.168.20.0 0.0.0.255 area 0
 network 192.168.25.0 0.0.0.255 area 0
 exit
 
-route ospf 10
-network 192.0.0.4 area 0
-network 192.168.20.0 area 0
-network 192.168.25.0 area 0
-network 128.168.20.0 area 0
-network 192.168.25.0 area 0
+router rip
+version 2
+network 192.0.0.4
 exit
 ```
+
+#### Redistribucion
 
 ```tlc
 router ospf 10
 redistribute rip metric 30 subnets
+redistribute eigrp 10 metric 30 subnets
+
 ```
 
 ### Dial peer
@@ -161,4 +168,23 @@ dial-peer voice 2 voip
 destination-pattern 200.
 session target ipv4:192.0.0.1
 exit
+
+dial-peer voice 7 voip
+destination-pattern 500.
+session target ipv4:192.0.0.6
+exit
+dial-peer voice 8 voip
+destination-pattern 600.
+session target ipv4:192.0.0.6
+exit
+
+dial-peer voice 9 voip
+destination-pattern 700.
+session target ipv4:192.0.0.13
+exit
+dial-peer voice 10 voip
+destination-pattern 800.
+session target ipv4:192.0.0.13
+exit
 ```
+[regresar](./HappyDuck-network.MD)

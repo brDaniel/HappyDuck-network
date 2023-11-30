@@ -1,5 +1,5 @@
 # Edificio 3
-
+[regresar](./HappyDuck-network.MD)
 ## configuracion del switch
 
 ```tcl
@@ -134,30 +134,71 @@ exit
 
 ```tcl
 route osp 10
-network 192.0.0.16 0.0.0.3 area 0
 network 192.168.30.0 0.0.0.3 area 0
 network 192.168.35.0 0.0.0.3 area 0
 network 128.168.30.0 0.0.0.3 area 0
 network 128.168.35.0 0.0.0.3 area 0
+network 192.0.0.8 0.0.0.3 area 0
+network 192.0.0.4 0.0.0.3 area 0
+network 192.0.0.16 0.0.0.3 area 0
 exit
 
-route rip 
+route BGP 300
+network 192.0.0.8 mask 255.255.255.252
+neighbor 192.0.0.10 remote-as 400
+exit
+
+router rip
 version 2
 network 192.0.0.4
 exit
 
-route bgp 300
-network 192.0.0.8 mask 255.255.255.252
-neighbor 192.0.0.10 remote-as 400
-exit
 ```
-route bgp 300
-redistribute ospf 10
-exit
-route rip
-version 2
-redistribute ospf 10 metric 2
+
+#### Redistribucion
+
 ```tcl
-
-
+router ospf 10
+redistribute bgp 300
+redistribute rip metric 10 subnets
+redistribute eigrp 10 metric 10 subnets
+exit
+router bgp 400
+resitribute ospf 10
+exit
+router rip
+resitribute ospf metric 2
+exit
 ```
+
+### Dial peer
+
+```tcl
+dial-peer voice 3 voip
+destination-pattern 100.
+session target ipv4:192.0.0.17
+exit
+dial-peer voice 4 voip
+destination-pattern 200.
+session target ipv4:192.0.0.17
+exit
+
+dial-peer voice 7 voip
+destination-pattern 300.
+session target ipv4:192.0.0.5
+exit
+dial-peer voice 8 voip
+destination-pattern 400.
+session target ipv4:192.0.0.5
+exit
+
+dial-peer voice 11 voip
+destination-pattern 700.
+session target ipv4:192.0.0.10
+exit
+dial-peer voice 12 voip
+destination-pattern 800.
+session target ipv4:192.0.0.10
+exit
+```
+[regresar](./HappyDuck-network.MD)
